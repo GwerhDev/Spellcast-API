@@ -40,11 +40,11 @@ async def text_to_speech(body: List[Segment], own_credentials: bool=True, with_t
 
     if with_timeline:
         ssml = build_ssml(segments).strip()
-        temp_path, timeline = await run_in_threadpool(
+        temp_path, timeline, error, error_status = await run_in_threadpool(
             build_audio_timeline, ssml, segments, azure_api_key, service_region
         )
         if not temp_path:
-            raise HTTPException(status_code=500, detail="Audio synthesis failed")
+            raise HTTPException(status_code=error_status or 500, detail=error or "Audio synthesis failed")
         file_stream = open(temp_path, mode='rb')
         def iterfile():
             try:
